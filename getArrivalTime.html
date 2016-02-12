@@ -1,0 +1,101 @@
+
+<script>
+function httpGet(theUrl){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+}
+
+function timeToStr(time){
+  var minute = Math.floor(time/60);
+  if(minute > 0){
+    return minute + ' m  ' + time%60 + ' s';
+  }
+  else{
+    return time%60 + ' s';
+  }
+}
+
+function timestampToStr(timestamp){
+  return '@ ' + timeToStr(Math.floor((new Date).getTime()/1000) - timestamp);
+}
+
+function updateTripStr(tripdata, elem1, elem2){
+  if(tripdata){
+    var time1 = tripdata['pre_away'];
+    var stamp1 = NaN;
+    if(tripdata['vehicle']){
+      stamp1 = tripdata['vehicle']['vehicle_timestamp'];
+    }
+
+    var timeaway1 = document.getElementById(elem1);
+    timeaway1.innerHTML = '&#8594; ' + timeToStr(time1) + ' &#8592;';
+
+    timeaway1 = document.getElementById(elem2);
+    timeaway1.innerHTML = timestampToStr(stamp1);
+  }
+  else{
+    var timeaway1 = document.getElementById(elem1);
+    timeaway1.innerHTML = '';
+
+    timeaway1 = document.getElementById(elem2);
+    timeaway1.innerHTML = '';
+  }
+}
+
+function gettime(){
+  var data = httpGet('http://realtime.mbta.com/developer/api/v2/predictionsbystop?api_key=wX9NwuHnZU2ToO7GmGR9uw&stop=5297&direction=1&format=json');
+
+  data1 = `{
+"mode": [{
+"route": [{
+"direction": [{
+"trip": [{
+"pre_away":"1234",
+"vehicle": {
+"vehicle_timestamp": "1455238701"
+}
+}]
+}]
+}]
+}]
+}`;
+
+  var data2 = `{
+"mode": [{
+"route": [{
+"direction": [{
+"trip": [{
+"pre_away":"1234",
+"vehicle": {
+"vehicle_timestamp": "1455238701"
+}
+},
+{
+"pre_away":"1234",
+"vehicle": {
+"vehicle_timestamp": "1455238701"
+}
+}]
+}]
+}]
+}]
+}`;
+
+  var jdata = JSON.parse(data);
+
+  var trip1 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][0];
+  var trip2 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][1];
+
+  updateTripStr(trip1, 'timeaway1', 'updated1');
+  updateTripStr(trip2, 'timeaway2', 'updated2')
+}
+</script>
+
+<body onload="gettime()">
+<h1 id="timeaway1">TIMEAWAY1</h1>
+<h2 id="updated1">UPDATED1</h2>
+<h1 id="timeaway2">TIMEAWAY2</h1>
+<h2 id="updated2">UPDATED2</h2>
+</body>

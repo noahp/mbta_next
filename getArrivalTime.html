@@ -29,18 +29,27 @@ function updateTripStr(tripdata, elem1, elem2){
       stamp1 = tripdata['vehicle']['vehicle_timestamp'];
     }
 
-    var timeaway1 = document.getElementById(elem1);
-    timeaway1.innerHTML = '&#8594; ' + timeToStr(time1) + ' &#8592;';
+    var eta = document.getElementById(elem1);
+    eta.innerHTML = '&#8594; ' + timeToStr(time1) + ' &#8592;';
 
-    timeaway1 = document.getElementById(elem2);
-    timeaway1.innerHTML = timestampToStr(stamp1);
+    // color hints. ref:
+    // http://www.w3schools.com/colors/colors_names.asp
+    if(time1 < 2.5*60){
+      eta.style.color = "OrangeRed";
+    }
+    else if (time1 < 5.5*60) {
+      eta.style.color = "Green";
+    }
+
+    eta = document.getElementById(elem2);
+    eta.innerHTML = timestampToStr(stamp1);
   }
   else{
-    var timeaway1 = document.getElementById(elem1);
-    timeaway1.innerHTML = '';
+    var eta = document.getElementById(elem1);
+    eta.innerHTML = '';
 
-    timeaway1 = document.getElementById(elem2);
-    timeaway1.innerHTML = '';
+    eta = document.getElementById(elem2);
+    eta.innerHTML = '';
   }
 }
 
@@ -88,14 +97,24 @@ function gettime(){
   var trip1 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][0];
   var trip2 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][1];
 
-  updateTripStr(trip1, 'timeaway1', 'updated1');
-  updateTripStr(trip2, 'timeaway2', 'updated2')
+  updateTripStr(trip1, 'eta1', 'vehicleupdate1');
+  updateTripStr(trip2, 'eta2', 'vehicleupdate2');
 }
 </script>
 
+<style>
+h1 {
+    font-size: 750%;
+}
+h2 {
+  font-size: 600%;
+  color: DarkGrey;
+}
+</style>
+
 <body onload="gettime()">
-<h1 id="timeaway1">TIMEAWAY1</h1>
-<h2 id="updated1">UPDATED1</h2>
-<h1 id="timeaway2">TIMEAWAY2</h1>
-<h2 id="updated2">UPDATED2</h2>
+<h1 id="eta1">TIMEAWAY1</h1>
+<h2 id="vehicleupdate1">UPDATED1</h2>
+<h1 id="eta2">TIMEAWAY2</h1>
+<h2 id="vehicleupdate2">UPDATED2</h2>
 </body>

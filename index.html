@@ -96,11 +96,40 @@ function gettime(){
 
   var jdata = JSON.parse(data);
 
-  var trip1 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][0];
-  var trip2 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][1];
+  try{
+    var trip1 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][0];
+    var trip2 = jdata['mode'][0]['route'][0]['direction'][0]['trip'][1];
 
-  updateTripStr(trip1, 'eta1', 'vehicleupdate1');
-  updateTripStr(trip2, 'eta2', 'vehicleupdate2');
+    updateTripStr(trip1, 'eta1', 'vehicleupdate1');
+    updateTripStr(trip2, 'eta2', 'vehicleupdate2');
+  } catch (e) {
+    if (e instanceof TypeError){
+      document.getElementById('eta1').innerHTML = 'N/A';
+      document.getElementById('vehicleupdate1').innerHTML = '';
+      document.getElementById('eta2').innerHTML = '';
+      document.getElementById('vehicleupdate2').innerHTML = '';
+    }
+    else{
+      throw e;
+    }
+  }
+}
+
+function getweather(){
+  // get the weather!
+  var wjson = httpGet('http://api.wunderground.com/api/88815957995e11de/conditions/forecast/q/MA/Medford.json')
+
+  // current weather
+  var jdata = JSON.parse(wjson);
+  var current = jdata['current_observation']['temp_f'];
+  var low = jdata['forecast']['simpleforecast']['forecastday'][0]['low']['fahrenheit'];
+  var high = jdata['forecast']['simpleforecast']['forecastday'][0]['high']['fahrenheit'];
+
+  var elem = document.getElementById('weather');
+  elem.innerHTML = low + 'F / ' + current + 'F / ' + high + 'F';
+
+  // set weather image
+  document.getElementById('weatherimg').src = jdata['forecast']['simpleforecast']['forecastday'][0]['icon_url'];
 }
 </script>
 
@@ -114,9 +143,11 @@ h2 {
 }
 </style>
 
-<body onload="gettime()">
+<body onload="gettime(); getweather();">
 <h1 id="eta1">TIMEAWAY1</h1>
 <h2 id="vehicleupdate1">UPDATED1</h2>
 <h1 id="eta2">TIMEAWAY2</h1>
 <h2 id="vehicleupdate2">UPDATED2</h2>
+<hr>
+<img id="weatherimg" src="http://icons.wxug.com/i/c/k/cloudy.gif"><div id="weather" style="font-size: 600%;">WEATHER</div>
 </body>

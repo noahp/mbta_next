@@ -2,6 +2,26 @@
   <meta name="mobile-web-app-capable" content="yes">
 </head>
 <script>
+var mbta_apikey;
+var mbta_stationid;
+var mbta_dir;
+var wunderground_apikey;
+var wunderground_loc;
+
+function getqueryparams () {
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    urlParams = {};
+    while (match = search.exec(query))
+       urlParams[decode(match[1])] = decode(match[2]);
+
+    return urlParams;
+};
+
 function httpGet(theUrl){
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
@@ -20,13 +40,16 @@ function timeToStr(time){
 }
 
 function timestampToStr(timestamp){
+  if(timestamp == '-'){
+    return '@ -';
+  }
   return '@ ' + timeToStr(Math.floor((new Date).getTime()/1000) - timestamp);
 }
 
 function updateTripStr(tripdata, elem1, elem2){
   if(tripdata){
     var time1 = tripdata['pre_away'];
-    var stamp1 = NaN;
+    var stamp1 = '-';
     if(tripdata['vehicle']){
       stamp1 = tripdata['vehicle']['vehicle_timestamp'];
     }
@@ -56,7 +79,7 @@ function updateTripStr(tripdata, elem1, elem2){
 }
 
 function gettime(){
-  var data = httpGet('http://realtime.mbta.com/developer/api/v2/predictionsbystop?api_key=wX9NwuHnZU2ToO7GmGR9uw&stop=5297&direction=1&format=json');
+  var data = httpGet('http://realtime.mbta.com/developer/api/v2/predictionsbystop?api_key='+mbta_apikey+'&stop='+mbta_stationid+'&direction='+mbta_dir+'&format=json');
 
   data1 = `{
 "mode": [{
@@ -117,7 +140,7 @@ function gettime(){
 
 function getweather(){
   // get the weather!
-  var wjson = httpGet('http://api.wunderground.com/api/88815957995e11de/conditions/forecast/q/MA/Medford.json')
+  var wjson = httpGet('http://api.wunderground.com/api/'+wunderground_apikey+'/conditions/forecast/q/'+wunderground_loc+'.json')
 
   // current weather
   var jdata = JSON.parse(wjson);
@@ -131,6 +154,24 @@ function getweather(){
   // set weather image
   document.getElementById('weatherimg').src = jdata['forecast']['simpleforecast']['forecastday'][0]['icon_url'];
 }
+
+function onload(){
+  var qps = getqueryparams();
+
+  wunderground_apikey = qps['wak'];
+  wunderground_loc = qps['wloc'];
+  mbta_apikey = qps['mak'];
+  mbta_stationid = qps['msid'];
+  mbta_dir = qps['mdir'];
+
+  if((mbta_apikey != null) && (mbta_stationid != null) && (mbta_dir != null)){
+    gettime();
+  }
+
+  if((wunderground_apikey != null) && (wunderground_loc != null)){
+    getweather();
+  }
+}
 </script>
 
 <style>
@@ -143,7 +184,7 @@ h2 {
 }
 </style>
 
-<body onload="gettime(); getweather();">
+<body onload="onload();">
 <h1 id="eta1">TIMEAWAY1</h1>
 <h2 id="vehicleupdate1">UPDATED1</h2>
 <h1 id="eta2">TIMEAWAY2</h1>

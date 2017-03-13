@@ -79,7 +79,7 @@ function updateTripStr(tripdata, elem1, elem2){
 }
 
 function gettime(){
-  var data = httpGet('http://realtime.mbta.com/developer/api/v2/predictionsbystop?api_key='+mbta_apikey+'&stop='+mbta_stationid+'&direction='+mbta_dir+'&format=json');
+  var data = httpGet('https://realtime.mbta.com/developer/api/v2/predictionsbystop?api_key='+mbta_apikey+'&stop='+mbta_stationid+'&direction='+mbta_dir+'&format=json');
 
   data1 = `{
 "mode": [{
@@ -140,7 +140,7 @@ function gettime(){
 
 function getweather(){
   // get the weather!
-  var wjson = httpGet('http://api.wunderground.com/api/'+wunderground_apikey+'/conditions/forecast/q/'+wunderground_loc+'.json')
+  var wjson = httpGet('https://api.wunderground.com/api/'+wunderground_apikey+'/conditions/forecast/q/'+wunderground_loc+'.json')
 
   // current weather
   var jdata = JSON.parse(wjson);
@@ -190,5 +190,5 @@ h2 {
 <h1 id="eta2">TIMEAWAY2</h1>
 <h2 id="vehicleupdate2">UPDATED2</h2>
 <hr>
-<img id="weatherimg" src="http://icons.wxug.com/i/c/k/cloudy.gif"><div id="weather" style="font-size: 600%;">WEATHER</div>
+<img id="weatherimg" src="https://icons.wxug.com/i/c/k/cloudy.gif"><div id="weather" style="font-size: 600%;">WEATHER</div>
 </body>
